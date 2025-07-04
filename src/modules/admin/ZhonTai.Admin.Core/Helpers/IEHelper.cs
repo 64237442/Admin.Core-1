@@ -89,6 +89,33 @@ public class IEHelper
         return new XlsxFileResult(result, fileName);
     }
 
+/// <summary>
+/// 按同一个模版分工作表导出集导出数据
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="dataItems">多个数据集列表List<List<T>></param>
+/// <param name="sheetNameList">与数据集列表对应的工作表名称</param>
+/// <param name="fileName">文件名</param>
+/// <returns></returns>
+[HttpPost]
+public async Task<ActionResult> ExportMultiDataAsync<T>(List<List<T>> dataItems, List<string> sheetNameList, string fileName = null) where T : class, new()
+{
+    var excelExport = new ExcelExporter();
+    for (var i = 0; i < dataItems.Count; i++)
+    {
+        excelExport.Append(dataItems[i], sheetNameList[i]);
+    }
+
+    var result = await excelExport.ExportAppendDataAsByteArray();
+
+    if (fileName.IsNull())
+    {
+        fileName = _adminCoreLocalizer["数据列表{0}.xlsx", DateTime.Now.ToString("yyyyMMddHHmmss")];
+    }
+
+    return new XlsxFileResult(result, fileName);
+}
+
     /// <summary>
     /// 导入数据
     /// </summary>
